@@ -1,4 +1,4 @@
-# Transcritor de Lousa e Slides com Inteligência Artificial
+# ranscritor de lousa e slides para texto alternativo com Inteligência Artificial
 
 Sistema web para transcrição de mídias didáticas (lousa, quadros e slides) com geração de texto alternativo estruturado por IA, focado na acessibilidade de alunos cegos ou com baixa visão.
 
