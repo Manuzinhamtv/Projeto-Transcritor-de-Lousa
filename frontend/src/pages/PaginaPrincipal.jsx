@@ -1,7 +1,7 @@
 // Página principal da aplicação
 // É aqui que tudo se conecta: upload, resultado e histórico
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 // Contexto de autenticação criado pela dupla — dá acesso ao usuário logado
 import { useAuthContext } from '../context/AuthContext'
@@ -14,6 +14,7 @@ import AreaUpload from '../components/AreaUpload'
 import ResultadoTranscricao from '../components/ResultadoTranscricao'
 import CardHistorico from '../components/CardHistorico'
 import ModalLogin from '../components/ModalLogin'
+
 
 export default function PaginaPrincipal() {
 
@@ -29,10 +30,20 @@ export default function PaginaPrincipal() {
     loading,
     loadingHistorico,
     erro,
+    carregarHistorico,
     transcrever,
     selecionarDoHistorico,
     limpar,
+    limparHistorico
   } = useTranscricao()
+  
+  // Carrega o histórico sempre que o usuário logar
+  useEffect(() => {
+    if (isLoggedIn) {
+      carregarHistorico()
+    }
+  }, [isLoggedIn])
+
 
   // Controla se o modal de login está aberto ou fechado
   const [modalAberto, setModalAberto] = useState(false)
@@ -71,7 +82,7 @@ export default function PaginaPrincipal() {
                   {user?.email?.slice(0, 2).toUpperCase()}
                 </span>
                 <span>{user?.email}</span>
-                <button onClick={logout} className="btn-sair">Sair</button>
+                <button onClick={() => { logout(); limparHistorico() }} className="btn-sair">Sair</button>
               </div>
             ) : (
               <button onClick={() => setModalAberto(true)} className="btn-entrar">

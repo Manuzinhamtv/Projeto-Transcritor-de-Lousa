@@ -44,8 +44,8 @@ const TRANSCRICOES_MOCK = [
 
 // Usuários mockados — simulam o banco de dados de autenticação
 const USUARIOS_MOCK = [
-  { email: 'prof.maria@escola.edu.br', senha: '1234', role: 'professor', nome: 'Prof. Maria' },
-  { email: 'lucas@escola.edu.br',      senha: '1234', role: 'estudante', nome: 'Lucas'       },
+  { email: 'moghis@utfpr.edu.br', senha: '554433', role: 'professor', nome: 'Moghis' },
+  { email: 'manu@utfpr.edu.br', senha: '123456', role: 'estudante', nome: 'Manu' },
 ]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
