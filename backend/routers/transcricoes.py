@@ -8,7 +8,8 @@ import uuid
 from pathlib import Path
 from datetime import datetime
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlmodel import Session, select
 
@@ -26,15 +27,15 @@ UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 # Configura a API do Gemini com a chave do .env
-genai.configure(api_key=os.getenv("GEMINI_API_KEY", ""))
-modelo_gemini = genai.GenerativeModel("gemini-2.0-flash")
+cliente_gemini = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 PROMPT_TRANSCRICAO = (
-    "Você é um assistente de apoio à educação. "
-    "Analise a imagem de uma lousa ou slide escolar e transcreva todo o conteúdo "
-    "de forma clara, organizada e acessível. "
-    "Preserve a estrutura original (títulos, listas, equações) usando texto simples. "
-    "Não adicione explicações extras — apenas transcreva fielmente o que está escrito."
+    "Transcreva fielmente todo o texto visível na imagem. "
+    "A imagem pode conter uma lousa, slide, folha, anotação ou conteúdo escolar. "
+    "Leia títulos, tópicos, listas, fórmulas, números e qualquer palavra visível. "
+    "Mantenha a organização do conteúdo em texto simples. "
+    "Se alguma parte estiver ilegível, escreva [ilegível]. "
+    "Não explique, não resuma e não invente conteúdo. Apenas transcreva."
 )
 
 
@@ -71,22 +72,56 @@ async def criar_transcricao(
     caminho = UPLOAD_DIR / nome_arquivo
 
     conteudo = await arquivo.read()
+
+    if not conteudo:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Arquivo vazio. Envie uma imagem válida.",
+        )
+
     caminho.write_bytes(conteudo)
 
     # Chama o Gemini Vision para transcrever
     try:
-        imagem_gemini = {
-            "mime_type": arquivo.content_type,
-            "data": conteudo,
-        }
-        resposta = modelo_gemini.generate_content([PROMPT_TRANSCRICAO, imagem_gemini])
-        texto_resultado = resposta.text.strip()
+        # Envia o prompt e a imagem para o modelo Gemini
+        resposta = cliente_gemini.models.generate_content(
+            model="gemini-2.5-flash-lite",
+            contents=[
+                PROMPT_TRANSCRICAO,
+                types.Part.from_bytes(
+                    data=conteudo,
+                    mime_type=arquivo.content_type
+                ),
+            ],
+        )
+
+        texto_resultado = (resposta.text or "").strip()
+
+        if not texto_resultado:
+            raise Exception(
+                "A IA não retornou nenhum texto. "
+                "Tente enviar uma imagem mais nítida, com boa iluminação e texto legível."
+            )
+
     except Exception as e:
         # Remove o arquivo se a IA falhar para não deixar lixo em disco
         caminho.unlink(missing_ok=True)
+
+        erro = str(e)
+
+        if "429" in erro or "RESOURCE_EXHAUSTED" in erro:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=(
+                    "A cota da API do Gemini foi excedida. "
+                    "Aguarde alguns segundos e tente novamente. "
+                    "Se o erro continuar, verifique a chave da API ou a cota no Google AI Studio."
+                ),
+            )
+
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Erro ao processar imagem com a IA: {str(e)}",
+            detail=f"Erro ao processar imagem com a IA: {erro}",
         )
 
     # Persiste no banco

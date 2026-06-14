@@ -6,7 +6,7 @@ import { useState } from 'react'
 // Puxa login() e carregarHistorico() de onde vivem
 import { useAuthContext } from '../context/AuthContext'
 import { useTranscricao } from './useTranscricao'
-import { mockLogin } from '../services/api'
+import { mockLogin, mockCadastrar } from '../services/api'
 
 export function useAuth() {
   // Estado de loading e erro são locais ao formulário de login
@@ -37,7 +37,7 @@ export function useAuth() {
       // Carrega o histórico de transcrições do professor recém-logado
       await carregarHistorico()
 
-      return true // sinaliza ao ModalLogin que pode se fechar
+      return true
     } catch (err) {
       // Exibe a mensagem de erro dentro do formulário
       setErro(err.message || 'Erro ao fazer login. Tente novamente.')
@@ -47,5 +47,30 @@ export function useAuth() {
     }
   }
 
-  return { handleLogin, loading, erro, setErro }
+  /**
+   * Cadastra um novo usuário e, se der certo, já faz login automaticamente.
+   */
+  async function handleCadastro(nome, email, senha, role) {
+    setLoading(true)
+    setErro('')
+
+    try {
+      await mockCadastrar(nome, email, senha, role)
+
+      const { usuario, token } = await mockLogin(email, senha, role)
+
+      login(usuario, token)
+
+      await carregarHistorico()
+
+      return true
+    } catch (err) {
+      setErro(err.message || 'Erro ao cadastrar. Tente novamente.')
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return { handleLogin, handleCadastro, loading, erro, setErro }
 }

@@ -12,16 +12,24 @@ export default function PaginaLogin() {
     // useNavigate permite redirecionar para outra página programaticamente
     const navigate = useNavigate()
 
+    const [modo, setModo] = useState('login')
     const [role, setRole] = useState('professor')
+    const [nome, setNome] = useState('')
     const [email, setEmail] = useState('')
     const [senha, setSenha] = useState('')
 
-    const { handleLogin, loading, erro } = useAuth()
+    const { handleLogin, handleCadastro, loading, erro, setErro } = useAuth()
 
     async function handleSubmit(e) {
         e.preventDefault()
 
-        const sucesso = await handleLogin(email, senha, role)
+        let sucesso = false
+
+        if (modo === 'login') {
+            sucesso = await handleLogin(email, senha, role)
+        } else {
+            sucesso = await handleCadastro(nome, email, senha, role)
+        }
 
         if (sucesso) {
             // Redireciona para a página correta dependendo do perfil
@@ -33,6 +41,11 @@ export default function PaginaLogin() {
         }
     }
 
+    function alternarModo(novoModo) {
+        setModo(novoModo)
+        setErro('')
+    }
+
     return (
         <div className="login-pagina">
 
@@ -42,6 +55,24 @@ export default function PaginaLogin() {
                     <span className="login-icone">📷</span>
                     <h1 className="login-titulo">LousaAI</h1>
                     <p className="login-subtitulo">Transcreva lousas e slides com IA</p>
+                </div>
+
+                {/* Seletor entre login e cadastro */}
+                <div className="role-seletor">
+                    <button
+                        type="button"
+                        className={modo === 'login' ? 'role-ativo' : ''}
+                        onClick={() => alternarModo('login')}
+                    >
+                        Entrar
+                    </button>
+                    <button
+                        type="button"
+                        className={modo === 'cadastro' ? 'role-ativo' : ''}
+                        onClick={() => alternarModo('cadastro')}
+                    >
+                        Cadastrar
+                    </button>
                 </div>
 
                 {/* Seletor de perfil */}
@@ -64,6 +95,20 @@ export default function PaginaLogin() {
 
                 {/* Formulário */}
                 <form onSubmit={handleSubmit}>
+
+                    {modo === 'cadastro' && (
+                        <>
+                            <label htmlFor="nome">Nome</label>
+                            <input
+                                id="nome"
+                                type="text"
+                                value={nome}
+                                onChange={(e) => setNome(e.target.value)}
+                                placeholder="Seu nome"
+                                required
+                            />
+                        </>
+                    )}
 
                     <label htmlFor="email">E-mail</label>
                     <input
@@ -93,17 +138,29 @@ export default function PaginaLogin() {
                     )}
 
                     <button type="submit" disabled={loading} className="btn-submit">
-                        {loading ? 'Aguarde...' : 'Entrar'}
+                        {loading
+                            ? 'Aguarde...'
+                            : modo === 'login'
+                                ? 'Entrar'
+                                : 'Cadastrar'}
                     </button>
 
                 </form>
 
                 {/* Dados de teste */}
-                <div className="modal-dica">
-                    <p>Dados de teste:</p>
-                    <p>moghis@utfpr.edu.br / 554433 (Professor)</p>
-                    <p>manu@utfpr.edu.br / 123456 (Estudante)</p>
-                </div>
+                {modo === 'login' && (
+                    <div className="modal-dica">
+                        <p>Dados de teste:</p>
+                        <p>moghis@utfpr.edu.br / 554433 (Professor)</p>
+                        <p>manu@utfpr.edu.br / 123456 (Estudante)</p>
+                    </div>
+                )}
+
+                {modo === 'cadastro' && (
+                    <div className="modal-dica">
+                        <p>Após cadastrar, o sistema já fará login automaticamente.</p>
+                    </div>
+                )}
 
             </div>
         </div>
