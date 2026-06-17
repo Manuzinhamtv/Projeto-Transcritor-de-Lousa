@@ -1,7 +1,7 @@
 // Serviço de comunicação com a API real
 // Substitui os dados mockados da Sprint 2
 
-const BASE_URL = "http://127.0.0.1:8000"
+const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000"
 
 // Converte o formato vindo do backend para o formato usado no frontend
 function adaptarTranscricao(item) {

@@ -4,6 +4,8 @@ Ponto de entrada da API FastAPI.
 Registra os routers e cria as tabelas ao iniciar.
 """
 
+import os
+
 from dotenv import load_dotenv
 load_dotenv()  # carrega .env antes de qualquer import que use os.getenv
 
@@ -24,9 +26,20 @@ app = FastAPI(
 # ── CORS ───────────────────────────────────────────────────────────────────────
 # Permite que o frontend React (localhost:5173) acesse a API em desenvolvimento
 
+FRONTEND_URL = os.getenv("FRONTEND_URL", "")
+
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+]
+
+if FRONTEND_URL:
+    origins.append(FRONTEND_URL)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
