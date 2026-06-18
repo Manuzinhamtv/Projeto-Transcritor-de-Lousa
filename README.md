@@ -187,7 +187,6 @@ O frontend estará disponível em `http://localhost:5173`.
 |---|---|---|
 | Enviar imagem para transcrição | ✅ | ❌ |
 | Ver histórico próprio | ✅ | ✅ |
-
 | Copiar texto transcrito | ✅ | ✅ |
 
 ---
