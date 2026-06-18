@@ -11,7 +11,6 @@ Plataforma web que utiliza Inteligência Artificial (Google Gemini) para transcr
 - 🗂️ Histórico de transcrições salvo por usuário
 - 👤 Perfis distintos para **Professor** e **Estudante**
 - 📋 Copiar e baixar o texto transcrito
-- ♿ Interface acessível com suporte a leitores de tela (NVDA, VoiceOver)
 
 ---
 
@@ -178,7 +177,7 @@ O frontend estará disponível em `http://localhost:5173`.
 |---|---|---|---|
 | `POST` | `/transcricoes/` | Envia imagem e transcreve com IA | ✅ Professor |
 | `GET` | `/transcricoes/` | Lista o histórico do usuário | ✅ |
-| `DELETE` | `/transcricoes/{id}` | Exclui uma transcrição | ✅ Professor |
+
 
 ---
 
@@ -188,7 +187,7 @@ O frontend estará disponível em `http://localhost:5173`.
 |---|---|---|
 | Enviar imagem para transcrição | ✅ | ❌ |
 | Ver histórico próprio | ✅ | ✅ |
-| Excluir transcrição | ✅ | ❌ |
+
 | Copiar texto transcrito | ✅ | ✅ |
 
 ---
@@ -206,8 +205,8 @@ O frontend estará disponível em `http://localhost:5173`.
 
 | Nome | Responsabilidade |
 |---|---|
-| **Manuela** | Frontend, UX e acessibilidade (React, componentes, responsividade) |
-| **Giovanna** | Backend, autenticação e integração com IA (FastAPI, JWT, Gemini) |
+| **Manuela** | Backend, autenticação e integração com IA (FastAPI, JWT, Gemini), Frontend, UX e acessibilidade (React, componentes, responsividade) |
+| **Giovanna** | Backend, autenticação e integração com IA (FastAPI, JWT, Gemini), Frontend, UX e acessibilidade (React, componentes, responsividade)|
 
 ---
 
